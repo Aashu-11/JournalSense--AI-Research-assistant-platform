@@ -18,33 +18,10 @@ def load_spacy_model():
     try:
         return spacy.load("en_core_web_sm")
     except OSError:
-        try:
-            # Better way to download spaCy model
-            import subprocess
-            import sys
-            
-            # Use the same Python interpreter that's running this script
-            python_executable = sys.executable
-            
-            # Run spaCy download with proper error handling
-            result = subprocess.run(
-                [python_executable, "-m", "spacy", "download", "en_core_web_sm"],
-                check=False,  # Don't raise exception if fails
-                capture_output=True,  # Capture output for debugging
-                text=True  # Return strings instead of bytes
-            )
-            
-            if result.returncode != 0:
-                st.error(f"Failed to download spaCy model. Using fallback method.")
-                st.code(f"Error: {result.stderr}")
-                
-                # Fallback to using small model that doesn't need downloading
-                return spacy.blank("en")
-            
-            return spacy.load("en_core_web_sm")
-        except Exception as e:
-            st.warning(f"Could not load spaCy model: {str(e)}. Using blank English model as fallback.")
-            return spacy.blank("en")  # Fallback to blank model
+        import subprocess
+        subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"], check=True)
+        return spacy.load("en_core_web_sm")
+
 
 # ————————————————————————————————————
 # 2. Load embedding model with better error handling
@@ -300,8 +277,4 @@ def main():
             st.warning("No journals match your filters. Try broadening your criteria.")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        st.error(f"An unexpected error occurred: {str(e)}")
-        st.info("Try refreshing the page to restart the application.")
+    main()
