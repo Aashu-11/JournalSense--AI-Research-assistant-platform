@@ -18,11 +18,6 @@ def load_spacy_model():
     try:
         return spacy.load("en_core_web_sm")
     except OSError:
-<<<<<<< HEAD
-        import subprocess
-        subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"], check=True)
-        return spacy.load("en_core_web_sm")
-=======
         try:
             # Better way to download spaCy model
             import subprocess
@@ -49,7 +44,6 @@ def load_spacy_model():
         except Exception as e:
             st.warning(f"Could not load spaCy model: {str(e)}. Using blank English model as fallback.")
             return spacy.blank("en")  # Fallback to blank model
->>>>>>> 9f07dc2 (more changes)
 
 # ————————————————————————————————————
 # 2. Load embedding model with better error handling
