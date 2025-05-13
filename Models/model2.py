@@ -18,6 +18,7 @@ import os
 >>>>>>> edb6c05 (final changes)
 from collections import Counter
 from sentence_transformers import SentenceTransformer
+import spacy
 
 st.set_page_config(page_title="AI Journal Recommender", layout="wide")
 
