@@ -4,8 +4,13 @@ import numpy as np
 import faiss
 import random
 import spacy
+<<<<<<< HEAD
 import sys
 import os
+=======
+import subprocess
+import sys
+>>>>>>> c6e24ee (loading changed)
 from collections import Counter
 from sentence_transformers import SentenceTransformer
 
@@ -15,9 +20,15 @@ st.set_page_config(page_title="AI Journal Recommender", layout="wide")
 # 1. Load spaCy for topic extraction with better error handling
 @st.cache_resource(show_spinner=False)
 def load_spacy_model():
+    """
+    Load spaCy model with robust fallback mechanisms.
+    This function handles different failure scenarios when loading the model.
+    """
+    # First try simple loading
     try:
         return spacy.load("en_core_web_sm")
     except OSError:
+<<<<<<< HEAD
         try:
             # Better way to download spaCy model
             import subprocess
@@ -44,6 +55,37 @@ def load_spacy_model():
         except Exception as e:
             st.warning(f"Could not load spaCy model: {str(e)}. Using blank English model as fallback.")
             return spacy.blank("en")  # Fallback to blank model
+=======
+        st.info("Downloading spaCy model, this may take a moment...")
+        
+        try:
+            # Try using pip to install the model directly
+            subprocess.check_call([
+                sys.executable, 
+                "-m", 
+                "pip", 
+                "install", 
+                "--no-cache-dir", 
+                "en_core_web_sm"
+            ])
+            return spacy.load("en_core_web_sm")
+        except Exception as e:
+            # If pip install fails, try the spacy download command
+            try:
+                subprocess.check_call([
+                    sys.executable, 
+                    "-m", 
+                    "spacy", 
+                    "download", 
+                    "en_core_web_sm",
+                    "--direct"  # Try direct download
+                ])
+                return spacy.load("en_core_web_sm")
+            except Exception as e2:
+                # Last resort: use the small model without linguistic features
+                st.warning("Could not download spaCy model. Using blank model as fallback.")
+                return spacy.blank("en")  # Fallback to blank model which is always available
+>>>>>>> c6e24ee (loading changed)
 
 # ————————————————————————————————————
 # 2. Load embedding model with better error handling
