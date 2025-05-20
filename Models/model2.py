@@ -4,8 +4,8 @@ import numpy as np
 import faiss
 import random
 import spacy
+import subprocess
 import sys
-import os
 from collections import Counter
 from sentence_transformers import SentenceTransformer
 
@@ -18,32 +18,35 @@ def load_spacy_model():
     try:
         return spacy.load("en_core_web_sm")
     except OSError:
+        st.info("Downloading spaCy model, this may take a moment...")
+        
         try:
-            # Better way to download spaCy model
-            import subprocess
-            import sys
-            
-            # Use the same Python interpreter that's running this script
-            python_executable = sys.executable
-            
-            # Run spaCy download with proper error handling
-            result = subprocess.run(
-                [python_executable, "-m", "spacy", "download", "en_core_web_sm"],
-                check=False,  # Don't raise exception if fails
-                capture_output=True,  # Capture output for debugging
-                text=True  # Return strings instead of bytes
-            )
-            
-            if result.returncode != 0:
-                
-                
-                # Fallback to using small model that doesn't need downloading
-                return spacy.blank("en")
-            
+            # Try using pip to install the model directly
+            subprocess.check_call([
+                sys.executable, 
+                "-m", 
+                "pip", 
+                "install", 
+                "--no-cache-dir", 
+                "en_core_web_sm"
+            ])
             return spacy.load("en_core_web_sm")
         except Exception as e:
-            st.warning(f"Could not load spaCy model: {str(e)}. Using blank English model as fallback.")
-            return spacy.blank("en")  # Fallback to blank model
+            # If pip install fails, try the spacy download command
+            try:
+                subprocess.check_call([
+                    sys.executable, 
+                    "-m", 
+                    "spacy", 
+                    "download", 
+                    "en_core_web_sm",
+                    "--direct"  # Try direct download
+                ])
+                return spacy.load("en_core_web_sm")
+            except Exception as e2:
+                # Last resort: use the small model without linguistic features
+                st.warning("Could not download spaCy model. Using blank model as fallback.")
+                return spacy.blank("en")  # Fallback to blank model which is always available
 
 # ————————————————————————————————————
 # 2. Load embedding model with better error handling
@@ -213,29 +216,6 @@ def main():
     st.title("🎓 AI Journal Recommender")
     st.write("Paste your paper title and abstract, then hit **Suggest Journals**.")
 
-    # Adding error handling for journal loading
-    try:
-        # load or fetch journals once
-        if "journals" not in st.session_state:
-            with st.spinner("Loading journal database…"):
-                st.session_state.journals = fetch_openalex_journals()
-        journals = st.session_state.journals
-    except Exception as e:
-        st.error(f"Error loading journals: {str(e)}")
-        st.stop()
-        return
-
-    # Adding error handling for models
-    try:  
-        # Preload models to avoid errors during recommendation
-        with st.spinner("Loading NLP models..."):
-            nlp = load_spacy_model()
-            embedder = load_embedder()
-    except Exception as e:
-        st.error(f"Error loading NLP models: {str(e)}")
-        st.info("Try installing spaCy models manually with: !python -m spacy download en_core_web_sm")
-        st.stop()
-        return
     # load or fetch journals once
     if "journals" not in st.session_state:
         with st.spinner("Loading journal database…"):
@@ -265,7 +245,9 @@ def main():
             return
 
         query = f"{title} {abstract}"
-        
+        embedder = load_embedder()
+        nlp = load_spacy_model()
+
         # topics
         with st.spinner("Extracting key topics…"):
             try:
@@ -278,13 +260,14 @@ def main():
                 return
 
         # build and query index
-        try:
-            with st.spinner("Building recommendation index…"):
-                index = build_faiss_index(journals, embedder)
-            recs = recommend_journals(query, journals, index, embedder, selected_domains, top_k=10)
-        except Exception as e:
-            st.error(f"Error generating recommendations: {str(e)}")
-            st.stop()
+        with st.spinner("Building recommendation index…"):
+            index = build_faiss_index(journals, embedder)
+
+        recs = recommend_journals(query, journals, index, embedder, selected_domains, top_k=10)
+
+        # Check if we got any recommendations
+        if not recs:
+            st.warning("Could not generate recommendations. This might be due to technical issues or no matching journals.")
             return
 
         # apply metric filters and show top `num_rec`
@@ -314,4 +297,8 @@ def main():
             st.warning("No journals match your filters. Try broadening your criteria.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {str(e)}")
+        st.info("Try refreshing the page to restart the application.")
