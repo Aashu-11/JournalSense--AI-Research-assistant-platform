@@ -18,10 +18,38 @@ def load_spacy_model():
     try:
         return spacy.load("en_core_web_sm")
     except OSError:
+<<<<<<< HEAD
         import subprocess
         subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"], check=True)
         return spacy.load("en_core_web_sm")
-
+=======
+        try:
+            # Better way to download spaCy model
+            import subprocess
+            import sys
+            
+            # Use the same Python interpreter that's running this script
+            python_executable = sys.executable
+            
+            # Run spaCy download with proper error handling
+            result = subprocess.run(
+                [python_executable, "-m", "spacy", "download", "en_core_web_sm"],
+                check=False,  # Don't raise exception if fails
+                capture_output=True,  # Capture output for debugging
+                text=True  # Return strings instead of bytes
+            )
+            
+            if result.returncode != 0:
+                
+                
+                # Fallback to using small model that doesn't need downloading
+                return spacy.blank("en")
+            
+            return spacy.load("en_core_web_sm")
+        except Exception as e:
+            st.warning(f"Could not load spaCy model: {str(e)}. Using blank English model as fallback.")
+            return spacy.blank("en")  # Fallback to blank model
+>>>>>>> 9f07dc2 (more changes)
 
 # ————————————————————————————————————
 # 2. Load embedding model with better error handling
@@ -191,17 +219,29 @@ def main():
     st.title("🎓 AI Journal Recommender")
     st.write("Paste your paper title and abstract, then hit **Suggest Journals**.")
 
-    # load or fetch journals once with error handling
-    if "journals" not in st.session_state:
-        with st.spinner("Loading journal database…"):
-            journals = fetch_openalex_journals()
-            if journals:
-                st.session_state.journals = journals
-            else:
-                st.error("Failed to load journal database. Please refresh the page to try again.")
-                return
-    
-    journals = st.session_state.journals
+    # Adding error handling for journal loading
+    try:
+        # load or fetch journals once
+        if "journals" not in st.session_state:
+            with st.spinner("Loading journal database…"):
+                st.session_state.journals = fetch_openalex_journals()
+        journals = st.session_state.journals
+    except Exception as e:
+        st.error(f"Error loading journals: {str(e)}")
+        st.stop()
+        return
+
+    # Adding error handling for models
+    try:  
+        # Preload models to avoid errors during recommendation
+        with st.spinner("Loading NLP models..."):
+            nlp = load_spacy_model()
+            embedder = load_embedder()
+    except Exception as e:
+        st.error(f"Error loading NLP models: {str(e)}")
+        st.info("Try installing spaCy models manually with: !python -m spacy download en_core_web_sm")
+        st.stop()
+        return
 
     # sidebar filters
     domains = extract_journal_domains(journals)
@@ -227,27 +267,25 @@ def main():
 
         query = f"{title} {abstract}"
         
-        # Load models with proper error handling
-        with st.spinner("Loading models..."):
-            embedder = load_embedder()
-            nlp = load_spacy_model()
-
         # topics
         with st.spinner("Extracting key topics…"):
-            topics = extract_key_phrases(query, nlp)
-        st.subheader("Key Topics")
-        st.write(" • ".join(topics) or "N/A")
+            try:
+                topics = extract_key_phrases(query, nlp)
+                st.subheader("Key Topics")
+                st.write(" • ".join(topics) or "N/A")
+            except Exception as e:
+                st.error(f"Error extracting topics: {str(e)}")
+                st.stop()
+                return
 
         # build and query index
-        with st.spinner("Building recommendation index…"):
-            index = build_faiss_index(journals, embedder)
-
-        with st.spinner("Finding matching journals..."):
+        try:
+            with st.spinner("Building recommendation index…"):
+                index = build_faiss_index(journals, embedder)
             recs = recommend_journals(query, journals, index, embedder, selected_domains, top_k=10)
-
-        # Check if we got any recommendations
-        if not recs:
-            st.warning("Could not generate recommendations. This might be due to technical issues or no matching journals.")
+        except Exception as e:
+            st.error(f"Error generating recommendations: {str(e)}")
+            st.stop()
             return
 
         # apply metric filters and show top `num_rec`
