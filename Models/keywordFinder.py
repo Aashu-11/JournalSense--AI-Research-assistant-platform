@@ -306,7 +306,7 @@ def search_openalex(query, page=1, per_page=10, filter_string=""):
     base_url = "https://api.openalex.org/works"
     
     # Email for polite pool - replace with your email
-    email = "your.email@example.com"
+    email = "aayushk1975@gmail.com"
     
     # Build query parameters
     params = {
@@ -329,7 +329,7 @@ def search_openalex(query, page=1, per_page=10, filter_string=""):
 def get_work_details(work_id):
     """Get detailed information about a specific work"""
     # Email for polite pool - replace with your email
-    email = "your.email@example.com"
+    email = "aayushk1975@gmail.com"
     
     url = f"https://api.openalex.org/{work_id}?mailto={email}"
     
