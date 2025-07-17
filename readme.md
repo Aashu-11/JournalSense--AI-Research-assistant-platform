@@ -179,28 +179,32 @@ Our system processes abstracts through multiple layers of analysis to match sema
   </table>
 </div>
 
+## 📊 Project Information Deck
+
+<div align="center">
+  <a href="https://drive.google.com/file/d/1rudH1-UmFbe6DF0D5w5_6G7qrn_397dz/view?usp=sharing" target="_blank">
+    <img src="https://img.shields.io/badge/📄-Project_Info_Deck-blue?style=for-the-badge&logo=google-drive&logoColor=white" alt="Project Information Deck">
+  </a>
+</div>
+
 ## 📺 Demo Video
 
 <div align="center">
-  <a href="(https://www.youtube.com/watch?v=uFNCtUuNHvA)">
-    <img src="https://img.shields.io/badge/Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Demo">
+  <a href="https://www.youtube.com/watch?v=uFNCtUuNHvA" target="_blank">
+    <img src="https://img.shields.io/badge/▶️-Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Demo">
   </a>
 </div>
 
 <!-- Animated Divider -->
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="Divider">
 
-
 ## 🔗 Useful Links
 
 <div align="center">
   <a href="https://journalsense.vercel.app/">
     <img src="https://img.shields.io/badge/Live_Demo-00B0FF?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo">
-  </a>o
+  </a>
 </div>
-
-<!-- Animated Divider -->
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
 > "Finding the right journal shouldn't be harder than the research itself."
 
