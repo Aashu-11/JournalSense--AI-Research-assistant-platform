@@ -58,11 +58,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, del
         className="mt-6 text-[#E4FD75] flex items-center gap-2 font-medium group-hover:translate-x-2 transition-transform duration-300"
         onClick={() => {
           if (title === "Journal Suggestions") {
-            window.location.href = "https://corefunctionality.streamlit.app/";
+            window.location.href = "https://journalsense--ai-research-assistant-platform-pmppe46ofrfh9unp2.streamlit.app/";
           } else if (title === "Trending Analysis") {
-            window.location.href = "https://journalsense--ai-research-assistant-platform-c3fwnwfgvc3rmdtfn.streamlit.app//";
+            window.location.href = "https://journalsense--ai-research-assistant-platform-awhseguwgpeyvcgm7.streamlit.app/";
           }else if(title === "Smart Search"){
-            window.location.href = "https://keywordfinder.streamlit.app/";
+            window.location.href = "https://journalsense--ai-research-assistant-platform-i6jyzgjx6m749bfjs.streamlit.app/";
           }else if(title === "MesmerizeAbstractBot"){
             window.location.href = "https://journalsensebot.vercel.app/";
           }
