@@ -557,8 +557,7 @@ def main():
                                 # Buttons for paper selection
                                 if st.button(f"View Paper Details #{i}"):
                                     st.session_state['selected_paper'] = works_df.iloc[i]
-                                    # Switch to next tab
-                                    st.experimental_set_query_params(tab="extract_keywords")
+                                    st.success("✅ Paper selected! Click on the 'Extract Keywords' tab to continue.")
                                 
         
                                 st.divider()
@@ -591,8 +590,7 @@ def main():
                     
                     if st.button(f"View Paper Details #{i}"):
                         st.session_state['selected_paper'] = works_df.iloc[i]
-                        # Switch to next tab
-                        st.experimental_set_query_params(tab="extract_keywords")
+                        st.success("✅ Paper selected! Click on the 'Extract Keywords' tab to continue.")
                     
                     st.divider()
     
